@@ -40,13 +40,6 @@ void *thread_routine() {
         measurements[i] = t_diff.tv_sec * 1000000000 + t_diff.tv_nsec;
     }
 
-    // // calculate the average difference between measurements
-    // long long sum_ns = measurements[0];
-    // for (int i = 1; i < 1000; i++) {
-    //     sum_ns += measurements[i] - measurements[i-1];
-    // }
-    // sum_ns /= 1000;
-
     // calculate the deltas between measurements
     long long deltas[999];
     for (int i = 0; i < 999; i++) {
@@ -71,10 +64,23 @@ void *thread_routine() {
     std_dev_ns /= 999;
     std_dev_ns = sqrt(std_dev_ns);
 
+    long long min = deltas[0];
+    long long max = deltas[0];
+
+    // minimum
+    for (int i=1; i<999; i++) {
+        long long delta = deltas[i];
+
+        min = (delta < min) ? delta : min;
+        max = (delta > max) ? delta : max;
+    }
+
 
     // print the results
     printf("average: %lld ns\n", average_ns);
     printf("std_dev: %lld ns\n", std_dev_ns);
+
+    printf("min: %lldns, max: %lldns\n", min, max);
 
 
     // print deltas as a bar graph, with 20 '#' per ms
