@@ -38,7 +38,7 @@ private:
     void pong(std_msgs::msg::String _)
     {
         clock_gettime(CLOCK_MONOTONIC, &receiving_time);
-        elapsed_time = (sending_time.tv_sec - receiving_time.tv_sec) * s + (sending_time.tv_nsec - receiving_time.tv_nsec);
+        elapsed_time = (receiving_time.tv_sec - sending_time.tv_sec) * s + (receiving_time.tv_nsec - sending_time.tv_nsec);
     }
     struct timespec sending_time, receiving_time;
     long elapsed_time;
