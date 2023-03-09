@@ -11,10 +11,14 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 
 add_executable(loop16 src/loop16.cpp)
+add_executable(seq16 src/seq16.cpp)
 
 ament_target_dependencies(loop16 rclcpp std_msgs)
+ament_target_dependencies(seq16 rclcpp std_msgs)
 
 install(TARGETS loop16
+  DESTINATION lib/${PROJECT_NAME})
+install(TARGETS seq16
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
