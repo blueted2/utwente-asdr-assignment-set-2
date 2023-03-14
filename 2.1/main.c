@@ -79,9 +79,16 @@ void *thread_routine() {
     // print the results
     printf("average: %lld ns\n", average_ns);
     printf("std_dev: %lld ns\n", std_dev_ns);
-
     printf("min: %lldns, max: %lldns\n", min, max);
+    long long int tmp=0;
+    int jitter=0;
+    printf("MEASUREMENTS (ns) | JITTER (ns) \n");
 
+    for (int i = 0; i < 999; i++) {
+        jitter = measurements[i] - tmp - 1000000;
+        printf("%18lld, %7d\n", measurements[i] - tmp, jitter);
+        tmp = measurements[i];
+    }
 
     // print deltas as a bar graph, with 20 '#' per ms
     for (int i = 0; i < 999; i++) {
