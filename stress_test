@@ -1,0 +1,15 @@
+echo no xeno
+build/2.1 > results/no_xeno
+
+echo xeno
+build/2.2 > results/xeno
+
+stress --cpu 8 --io 4 --vm 2 --vm-bytes 128M --timeout 10s &
+
+sleep 1
+
+echo no xeno + stress
+build/2.1 > results/no_xeno_stress
+
+echo xeno + stress
+build/2.2 > results/xeno_stress
