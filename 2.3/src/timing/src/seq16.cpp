@@ -9,6 +9,7 @@
 using std::placeholders::_1;
 
 #define s 1000000000
+#define ms 1000000
 
 using namespace std::chrono_literals;
 
@@ -29,10 +30,16 @@ class Seq : public rclcpp::Node
   private:
     void ping()
     {
+      //jitter
+      counter++;
+      mean = (mean * counter + elapsed_time) / (counter + 1); //cumulative average
+      jitter_roundtrip = mean - elapsed_time;
+      //publishing
       auto message = std_msgs::msg::String();
       message.data = std::to_string(elapsed_time);
       //RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
       publisher_->publish(message);
+
     }
     void pong(std_msgs::msg::String _)
     {
@@ -42,7 +49,8 @@ class Seq : public rclcpp::Node
       start_time = new_time;
     }
     struct timespec new_time, start_time;
-    long elapsed_time;
+    long elapsed_time, mean = 0;
+    int jitter, jitter_roundtrip, counter = 0;
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
