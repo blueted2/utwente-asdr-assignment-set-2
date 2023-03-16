@@ -3,6 +3,8 @@
 #include <pthread.h>
 #include <time.h>
 #include <math.h>
+#define ms 1000000
+#define s 1000000000
 
 void *thread_routine() {
     // create array to hold mesured timing
@@ -17,11 +19,12 @@ void *thread_routine() {
     // run for 1 second
     for (int i = 0; i < 1000; i++) {
 
-        t_running.tv_nsec += 1000000;
-        if (t_running.tv_nsec >= 1000000000) {
-            t_running.tv_nsec -= 1000000000;
+        t_running.tv_nsec += ms;
+        if (t_running.tv_nsec >= s) {
+            t_running.tv_nsec -= s;
             t_running.tv_sec++;
         }
+        
         clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &t_running, NULL);
 
         // get the time in nanoseconds since the start
@@ -32,12 +35,12 @@ void *thread_routine() {
         t_diff.tv_sec = t_now.tv_sec - t_start.tv_sec;
         t_diff.tv_nsec = t_now.tv_nsec - t_start.tv_nsec;
         if (t_diff.tv_nsec < 0) {
-            t_diff.tv_nsec += 1000000000;
+            t_diff.tv_nsec += s;
             t_diff.tv_sec--;
         }
 
         // convert to nanoseconds
-        measurements[i] = t_diff.tv_sec * 1000000000 + t_diff.tv_nsec;
+        measurements[i] = t_diff.tv_sec * s + t_diff.tv_nsec;
     }
 
     // calculate the deltas between measurements
