@@ -30,14 +30,20 @@ class Seq : public rclcpp::Node
   private:
     void ping()
     {
-      //jitter
+      //jitter wall_timer
+      last_ping_time = ping_time;
+      clock_gettime(CLOCK_MONOTONIC, &ping_time);
+      jitter_wall_timer = ms - ((ping_time.tv_sec - last_ping_time.tv_sec) * s + (ping_time.tv_nsec - last_ping_time.tv_nsec));
+      //jitter roundtrip
       counter++;
       mean = (mean * counter + elapsed_time) / (counter + 1); //cumulative average
       jitter_roundtrip = mean - elapsed_time;
+      //show results
+      RCLCPP_INFO(this->get_logger(), "jitter roundtrip: %ld\tjitter_wall_timer: %ld", jitter_roundtrip, jitter_wall_timer);
       //publishing
       auto message = std_msgs::msg::String();
       message.data = std::to_string(elapsed_time);
-      //RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
+
       publisher_->publish(message);
 
     }
@@ -48,9 +54,9 @@ class Seq : public rclcpp::Node
       
       start_time = new_time;
     }
-    struct timespec new_time, start_time;
-    long elapsed_time, mean = 0;
-    int jitter, jitter_roundtrip, counter = 0;
+    struct timespec new_time, start_time, ping_time = {0}, last_ping_time;
+    long elapsed_time, mean = 0, jitter_roundtrip, jitter_wall_timer = 0;
+    int counter = 0;
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
