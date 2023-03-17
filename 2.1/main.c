@@ -12,7 +12,7 @@ void *thread_routine() {
 
     // get current time
     struct timespec t_start;
-    clock_gettime(CLOCK_REALTIME, &t_start);
+    clock_gettime(CLOCK_MONOTONIC, &t_start);
 
     struct timespec t_running = t_start;
 
@@ -25,11 +25,11 @@ void *thread_routine() {
             t_running.tv_sec++;
         }
         
-        clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &t_running, NULL);
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t_running, NULL);
 
         // get the time in nanoseconds since the start
         struct timespec t_now;
-        clock_gettime(CLOCK_REALTIME, &t_now);
+        clock_gettime(CLOCK_MONOTONIC, &t_now);
 
         struct timespec t_diff;
         t_diff.tv_sec = t_now.tv_sec - t_start.tv_sec;
