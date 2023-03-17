@@ -9,20 +9,22 @@ public:
   Loop16() : Node("Loop16")
   {
     subscription_ = this->create_subscription<std_msgs::msg::String>(
-      "ping", 10, std::bind(&Loop16::subscription_callback, this, _1)
+      "ping", 1, std::bind(&Loop16::subscription_callback, this, _1)
     );
 
     publisher_ = this->create_publisher<std_msgs::msg::String>(
-      "pong", 10);
+      "pong", 1);
+
+    RCLCPP_INFO(this->get_logger(), "elapsed_time, jitter_roundtrip, jitter_wall_timer");
   }
 
 private:
 
   void subscription_callback(const std_msgs::msg::String &msg)
   {
-    RCLCPP_INFO(this->get_logger(), "got message: %s", msg.data.c_str());
-
     publisher_->publish(msg);
+    
+    RCLCPP_INFO(this->get_logger(), "%s", msg.data.c_str());
   }
 
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;

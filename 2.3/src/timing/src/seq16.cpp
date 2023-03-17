@@ -21,15 +21,18 @@ class Seq : public rclcpp::Node
   public:
     Seq(): Node("Seq"), elapsed_time(0)
     {
-      publisher_ = this->create_publisher<std_msgs::msg::String>("ping", 10);
+      publisher_ = this->create_publisher<std_msgs::msg::String>("ping", 1);
       timer_ = this->create_wall_timer(1ms, std::bind(&Seq::ping, this));
-      subscription_ = this->create_subscription<std_msgs::msg::String>("pong", 10, std::bind(&Seq::pong, this, _1));
+      subscription_ = this->create_subscription<std_msgs::msg::String>("pong", 1, std::bind(&Seq::pong, this, _1));
       clock_gettime(CLOCK_MONOTONIC, &start_time);
+      clock_gettime(CLOCK_MONOTONIC, &ping_time);
     }
 
   private:
     void ping()
     {
+      if (counter > 10000) rclcpp::shutdown();
+      
       //jitter wall_timer
       last_ping_time = ping_time;
       clock_gettime(CLOCK_MONOTONIC, &ping_time);
@@ -38,14 +41,11 @@ class Seq : public rclcpp::Node
       counter++;
       mean = (mean * counter + elapsed_time) / (counter + 1); //cumulative average
       jitter_roundtrip = mean - elapsed_time;
-      //show results
-      RCLCPP_INFO(this->get_logger(), "jitter roundtrip: %ld\tjitter_wall_timer: %ld", jitter_roundtrip, jitter_wall_timer);
       //publishing
       auto message = std_msgs::msg::String();
-      message.data = std::to_string(elapsed_time);
+      message.data = std::to_string(elapsed_time) + ", " + std::to_string(jitter_roundtrip) + ", " + std::to_string(jitter_wall_timer);
 
       publisher_->publish(message);
-
     }
     void pong(std_msgs::msg::String _)
     {
@@ -54,7 +54,7 @@ class Seq : public rclcpp::Node
       
       start_time = new_time;
     }
-    struct timespec new_time, start_time, ping_time = {0}, last_ping_time;
+    struct timespec new_time, start_time, ping_time, last_ping_time;
     long elapsed_time, mean = 0, jitter_roundtrip, jitter_wall_timer = 0;
     int counter = 0;
     rclcpp::TimerBase::SharedPtr timer_;
