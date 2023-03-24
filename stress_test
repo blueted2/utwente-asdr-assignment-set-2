@@ -1,3 +1,5 @@
+make
+
 echo no xeno
 build/2.1 > results/no_xeno
 
@@ -6,6 +8,7 @@ build/2.2 > results/xeno
 
 stress --cpu 8 --io 4 --vm 2 --vm-bytes 128M --timeout 10s &
 
+# wait for stress to stabilize
 sleep 1
 
 echo no xeno + stress
